@@ -15,10 +15,8 @@ class ObjectDetection:
         self.capture_index = capture_index
         self.email_sent = False
 
-        # model information
         self.model = YOLO("yolov8n.pt")
 
-        # visual information
         self.annotator = None
         self.start_time = 0
         self.end_time = 0
@@ -26,7 +24,6 @@ class ObjectDetection:
         self.last_saved_time = datetime.now().timestamp()
         self.save_interval = 3 
 
-        # device information
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
     def predict(self, im0):

@@ -8,7 +8,7 @@ import json
 
 app = Flask(__name__)
 
-# Load configuration directly into Flask's configuration
+
 with open('config.json', 'r') as file:
     app.config.update(json.load(file))
 
@@ -16,13 +16,13 @@ app.config.setdefault('SECRET_KEY', 'your_secret_key_here')
 app.config.setdefault('SQLALCHEMY_DATABASE_URI', 'mysql+mysqlconnector://root:@localhost/dpm')
 app.config.setdefault('SQLALCHEMY_TRACK_MODIFICATIONS', False)
 
-# Initialize SQLAlchemy
+
 db = SQLAlchemy(app)
 
-# Initialize Swagger
+
 Swagger(app)
 
-# Define the User model
+
 class User(db.Model):
     __tablename__ = 'users'
     id = db.Column('User_ID', db.Integer, primary_key=True)
@@ -35,7 +35,7 @@ class User(db.Model):
     def check_password(self, password):
         return check_password_hash(self.password, password)
 
-# Authentication Blueprint
+
 auth_blueprint = Blueprint('auth', __name__)
 
 @auth_blueprint.route('/login', methods=['POST'])
@@ -59,7 +59,7 @@ def generate_token():
         user = User.query.filter_by(username=data['username']).first()
         if user and user.check_password(data['password']):
             token = jwt.encode(
-                {'username': user.username, 'exp': datetime.utcnow() + timedelta(minutes=30)},
+                {'username': user.username, 'exp': datetime.now() + timedelta(minutes=30)},
                 app.config['SECRET_KEY'], algorithm='HS256'
             )
             return jsonify({'token': token}), 200
@@ -81,6 +81,6 @@ def verify_token():
             return jsonify({'message': 'Invalid token'}), 401
     return jsonify({'message': 'Token is required'}), 400
 
-# Register the Blueprint
+
 app.register_blueprint(auth_blueprint, url_prefix='/auth')
 

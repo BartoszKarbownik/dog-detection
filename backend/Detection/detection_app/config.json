@@ -1,0 +1,6 @@
+{
+    "SECRET_KEY": "your_secret_key_here",
+    "SQLALCHEMY_DATABASE_URI": "mysql+mysqlconnector://root:@localhost/dpm",
+    "SQLALCHEMY_TRACK_MODIFICATIONS": false
+  }
+  

@@ -1,0 +1,31 @@
+from flask import Flask
+from flask_sqlalchemy import SQLAlchemy
+from flasgger import Swagger
+from flask_cors import CORS
+import json
+
+db = SQLAlchemy()
+swagger = Swagger()
+
+def create_app():
+    app = Flask(__name__)
+    
+    CORS(app)
+    
+    with open('detection_app/config.json') as config_file:
+        config = json.load(config_file)
+        app.config.update(config)
+
+    db.init_app(app)
+    swagger.init_app(app)
+
+    from detection_app.routes.auth_routes import auth_blueprint
+    app.register_blueprint(auth_blueprint, url_prefix='/auth')
+
+    from detection_app.routes.main_routes import main_blueprint
+    app.register_blueprint(main_blueprint)
+    
+    from detection_app.routes.camera_routes import camera_blueprint
+    app.register_blueprint(camera_blueprint)
+
+    return app

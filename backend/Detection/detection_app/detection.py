@@ -6,8 +6,6 @@ from time import time
 from ultralytics import YOLO
 from ultralytics.utils.plotting import Annotator, colors
 import smtplib
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
 
 class ObjectDetection:
     def __init__(self, capture_index):

@@ -26,6 +26,6 @@ def create_app():
     app.register_blueprint(main_blueprint)
     
     from detection_app.routes.camera_routes import camera_blueprint
-    app.register_blueprint(camera_blueprint)
+    app.register_blueprint(camera_blueprint, url_prefix='/camera')
 
     return app

@@ -6,12 +6,12 @@ from time import time
 from ultralytics import YOLO
 from ultralytics.utils.plotting import Annotator, colors
 import smtplib
+import threading
+from queue import Queue
 
 class ObjectDetection:
     def __init__(self, capture_index):
-        """Initializes an ObjectDetection instance with a given camera index."""
         self.capture_index = capture_index
-        self.email_sent = False
 
         self.model = YOLO("yolov8n.pt")
 
@@ -23,6 +23,12 @@ class ObjectDetection:
         self.save_interval = 3 
 
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
+        
+        self.frame_queue = Queue(maxsize=1)
+        self.detection_thread = None
+        self.is_running = False
+        self.latest_frame = None
+        self.lock = threading.Lock()
 
     def predict(self, im0):
         """Run prediction using a YOLO model for the input image `im0`."""
@@ -50,21 +56,44 @@ class ObjectDetection:
                 self.last_saved_time = current_time  
         return im0, class_ids
 
-    def __call__(self):
-        """Executes object detection on video frames from a specified camera index, plotting bounding boxes and returning modified frames."""
+    def detection_loop(self):
         cap = cv2.VideoCapture(self.capture_index)
         assert cap.isOpened()
         cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
         cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
-        while True:
-            self.start_time = time()
-            ret, im0 = cap.read()
-            assert ret
-            results = self.predict(im0)
-            im0, class_ids = self.plot_bboxes(results, im0)
-            
-            _, buffer = cv2.imencode('.jpg', im0)
-            frame = buffer.tobytes()
-            #cv2.imshow('YOLOv8 Detection', im0)
-            yield (b'--frame\r\n'
-                   b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
+
+        while self.is_running:
+            ret, frame = cap.read()
+            if not ret:
+                break
+
+            results = self.predict(frame)
+            annotated_frame, _ = self.plot_bboxes(results, frame)
+
+            # Make a copy of the annotated frame to avoid shared references
+            with self.lock:
+                self.latest_frame = annotated_frame.copy()
+
+            if self.frame_queue.full():
+                self.frame_queue.get()  # Remove old frame
+            self.frame_queue.put(self.latest_frame)
+
+        cap.release()
+
+    def start_detection(self):
+        if not self.is_running:
+            self.is_running = True
+            self.detection_thread = threading.Thread(target=self.detection_loop)
+            self.detection_thread.start()
+
+    def stop_detection(self):
+        self.is_running = False
+        if self.detection_thread:
+            self.detection_thread.join()
+
+    def get_frame(self):
+        with self.lock:
+            if self.latest_frame is not None:
+                return self.latest_frame.copy()
+            else:
+                return None

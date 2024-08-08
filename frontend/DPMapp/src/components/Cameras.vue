@@ -7,12 +7,13 @@
       </select>
       <video ref="cameraFeed" autoplay></video>
           <h1>Live Camera Feed</h1>
-    <img src="http://localhost:5000/video" alt="Video Stream" />
+    <img src="http://localhost:5000/camera/video_feed" alt="Video Stream" />
     </div>
   </template>
 
   <script setup>
   import Navbar from './Navbar.vue'
+  import Button from './Button.vue';
   </script>
   
   <script>

@@ -1,5 +1,5 @@
 <template>
-    <div class="login-container">
+    <div class="min-h-screen flex items-center justify-center bg-gray-800">
       <LoginForm 
         v-if="!isRegisterMode" 
         @register="handleRegisterMode" 

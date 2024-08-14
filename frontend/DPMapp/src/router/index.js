@@ -1,16 +1,18 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import LoginForm from '../components/LoginFormAlt1.vue';
-import LoginFormAlt from '../components/LoginForm.vue';
+import LoginFormx from '../components/LoginFormAlt1.vue';
+import LoginForm from '../components/LoginForm.vue';
 import HomeAlt from '../components/HomeAlt.vue';
 import Home from '../views/Home.vue';
 import RegisterForm from '../components/RegisterForm.vue';
 import Cameras from '../components/Cameras.vue';
+import Login from '../views/Login.vue';
+import Detections from '../views/Detections.vue';
 
 const routes = [
   {
     path: '/',
     name: 'Login',
-    component: LoginFormAlt
+    component: Login//LoginForm
   },
   {
     path: '/homealt',
@@ -31,6 +33,11 @@ const routes = [
     path: '/register',
     name: 'Register',
     component: RegisterForm
+  },
+  {
+    path: '/detections',
+    name: 'Detections',
+    component: Detections
   },
 ];
 

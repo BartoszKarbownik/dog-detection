@@ -1,11 +1,14 @@
 <template>
     <div>
-        <Navbar></Navbar>
-        <List>list</List>
+      <Navbar />
     </div>
-</template>
-
-<script setup>
-import Navbar from '../components/Navbar.vue';
-import List from '../components/List.vue';
-</script>
+    <div class="min-h-screen bg-gray-50 flex items-center justify-center">
+      <ScreenshotList />
+    </div>
+  </template>
+  
+  <script setup>
+  import Navbar from '../components/Navbar.vue';
+  import ScreenshotList from '../components/ScreenshotList.vue';
+  </script>
+  

@@ -11,7 +11,7 @@ class ObjectDetection:
     def __init__(self, capture_index, app):
         self.capture_index = capture_index
         self.app = app  # Properly set the app attribute
-        self.model = YOLO("yolov8n.pt")
+        self.model = YOLO("yolov10n.pt")
         self.annotator = None
         self.last_saved_time = datetime.now().timestamp()
         self.save_interval = 3 

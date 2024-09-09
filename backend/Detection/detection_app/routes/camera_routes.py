@@ -93,3 +93,27 @@ def get_stats():
         "status": status["status"],
         "error_message": status["error_message"]
     })
+    
+@camera_blueprint.route('/plain_video_feed')
+def plain_video_feed():
+    def generate():
+        cap = cv2.VideoCapture(0) 
+        while True:
+            ret, frame = cap.read()
+            if not ret:
+                break
+            ret, buffer = cv2.imencode('.jpg', frame)
+            if not ret:
+                continue
+            yield (b'--frame\r\n'
+                   b'Content-Type: image/jpeg\r\n\r\n' + buffer.tobytes() + b'\r\n')
+        cap.release()
+
+    return Response(generate(), mimetype='multipart/x-mixed-replace; boundary=frame')
+
+@camera_blueprint.route('/fps')
+def get_fps():
+    global detection
+    if detection and detection.is_running:
+        return jsonify({"fps": detection.get_fps()})
+    return jsonify({"fps": 0})

@@ -24,6 +24,9 @@ class ObjectDetection:
         self.lock = threading.Lock()
         self.screenshot_path = 'C:/Users/Bartek/Desktop/Detection/screenshots'
         self.error_message = None
+        self.fps = 0
+        self.frame_count = 0
+        self.fps_start_time = None
 
 
     def save_screenshot(self, filename, filepath):
@@ -63,7 +66,7 @@ class ObjectDetection:
             cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
             cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
 
-            frames_processed = 0
+            self.fps_start_time = datetime.now()
 
             while self.is_running:
                 ret, frame = cap.read()
@@ -80,6 +83,13 @@ class ObjectDetection:
                     self.frame_queue.get()
                 self.frame_queue.put(self.latest_frame)
 
+                self.frame_count += 1
+                elapsed_time = (datetime.now() - self.fps_start_time).total_seconds()
+                if elapsed_time > 1:
+                    self.fps = self.frame_count / elapsed_time
+                    self.frame_count = 0
+                    self.fps_start_time = datetime.now()
+
                 self.status = 'running'
 
         except IOError as e:
@@ -90,6 +100,9 @@ class ObjectDetection:
             if cap is not None:
                 cap.release()
             self.status = 'idle'
+            
+    def get_fps(self):
+        return round(self.fps, 2)
 
     def start_detection(self):
         if not self.is_running:

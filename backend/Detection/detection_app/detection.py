@@ -24,7 +24,6 @@ class ObjectDetection:
         self.lock = threading.Lock()
         self.screenshot_path = 'C:/Users/Bartek/Desktop/Detection/screenshots'
         self.error_message = None
-        self.warmup_frames = 10
 
 
     def save_screenshot(self, filename, filepath):
@@ -64,7 +63,6 @@ class ObjectDetection:
             cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
             cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
 
-            self.status = 'warming_up'
             frames_processed = 0
 
             while self.is_running:
@@ -82,9 +80,7 @@ class ObjectDetection:
                     self.frame_queue.get()
                 self.frame_queue.put(self.latest_frame)
 
-                frames_processed += 1
-                if frames_processed == self.warmup_frames:
-                    self.status = 'running'
+                self.status = 'running'
 
         except IOError as e:
             self.error_message = str(e)

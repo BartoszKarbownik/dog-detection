@@ -45,7 +45,6 @@ const statusText = computed(() => {
   switch (cameraStore.status) {
     case 'idle': return 'Idle';
     case 'starting': return 'Starting...';
-    case 'warming_up': return 'Warming up...';
     case 'running': return 'Running';
     case 'error': return 'Error';
     default: return 'Unknown';

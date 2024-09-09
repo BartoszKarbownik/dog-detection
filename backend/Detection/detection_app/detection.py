@@ -6,12 +6,13 @@ import threading
 from queue import Queue
 from flask import current_app
 import torch
+import logging
 
 class ObjectDetection:
     def __init__(self, capture_index, app):
         self.capture_index = capture_index
-        self.app = app  # Properly set the app attribute
-        self.model = YOLO("yolov10n.pt")
+        self.app = app  
+        self.model = YOLO("yolov8n.pt")
         self.annotator = None
         self.last_saved_time = datetime.now().timestamp()
         self.save_interval = 3 
@@ -22,6 +23,9 @@ class ObjectDetection:
         self.latest_frame = None
         self.lock = threading.Lock()
         self.screenshot_path = 'C:/Users/Bartek/Desktop/Detection/screenshots'
+        self.error_message = None
+        self.warmup_frames = 10
+
 
     def save_screenshot(self, filename, filepath):
         with self.app.app_context():
@@ -52,31 +56,50 @@ class ObjectDetection:
         return im0, class_ids
 
     def detection_loop(self):
-        cap = cv2.VideoCapture(self.capture_index)
-        assert cap.isOpened()
-        cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
-        cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
+        try:
+            cap = cv2.VideoCapture(self.capture_index)
+            if not cap.isOpened():
+                raise IOError(f"Unable to open video capture with index {self.capture_index}")
 
-        while self.is_running:
-            ret, frame = cap.read()
-            if not ret:
-                break
+            cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
+            cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
 
-            results = self.model(frame, verbose=False)
-            annotated_frame, _ = self.plot_bboxes(results, frame)
+            self.status = 'warming_up'
+            frames_processed = 0
 
-            with self.lock:
-                self.latest_frame = annotated_frame.copy()
+            while self.is_running:
+                ret, frame = cap.read()
+                if not ret:
+                    raise IOError("Failed to grab frame")
 
-            if self.frame_queue.full():
-                self.frame_queue.get()
-            self.frame_queue.put(self.latest_frame)
+                results = self.model(frame, verbose=False)
+                annotated_frame, _ = self.plot_bboxes(results, frame)
 
-        cap.release()
+                with self.lock:
+                    self.latest_frame = annotated_frame.copy()
+
+                if self.frame_queue.full():
+                    self.frame_queue.get()
+                self.frame_queue.put(self.latest_frame)
+
+                frames_processed += 1
+                if frames_processed == self.warmup_frames:
+                    self.status = 'running'
+
+        except IOError as e:
+            self.error_message = str(e)
+            self.status = 'error'
+            logging.error(f"Camera error: {self.error_message}")
+        finally:
+            if cap is not None:
+                cap.release()
+            self.status = 'idle'
 
     def start_detection(self):
         if not self.is_running:
             self.is_running = True
+            self.error_message = None
+            self.status = 'starting'
             self.detection_thread = threading.Thread(target=self.detection_loop)
             self.detection_thread.start()
 
@@ -84,10 +107,17 @@ class ObjectDetection:
         self.is_running = False
         if self.detection_thread:
             self.detection_thread.join()
+        self.status = 'idle'
 
     def get_frame(self):
         with self.lock:
             if self.latest_frame is not None:
                 return self.latest_frame.copy()
             else:
-                return None
+                return None, "No frame available"
+            
+    def get_status(self):
+        return {
+            "status": self.status,
+            "error_message": self.error_message
+        }

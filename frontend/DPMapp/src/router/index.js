@@ -7,6 +7,7 @@ import RegisterForm from '../components/RegisterForm.vue';
 import Cameras from '../components/Cameras.vue';
 import Login from '../views/Login.vue';
 import Detections from '../views/Detections.vue';
+import Camera from '../views/Camera.vue';
 
 const routes = [
   {
@@ -26,8 +27,8 @@ const routes = [
   },
   {
     path: '/cameras',
-    name: 'Cameras',
-    component: Cameras
+    name: 'Camera',//s
+    component: Camera //s
   },
   {
     path: '/register',
@@ -38,6 +39,11 @@ const routes = [
     path: '/detections',
     name: 'Detections',
     component: Detections
+  },
+  {
+    path: '/calendar',
+    name: 'Cameras',
+    component: Cameras
   },
 ];
 

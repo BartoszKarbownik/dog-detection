@@ -1,6 +1,7 @@
 from flask import Response, Blueprint, request, jsonify, current_app, send_file
 import cv2
 import numpy as np
+from sqlalchemy import func
 from ultralytics import YOLO
 from detection_app.detection import ObjectDetection
 from detection_app.models import db, Screenshot
@@ -40,7 +41,6 @@ def generate_frames():
                     yield (b'--frame\r\n'
                            b'Content-Type: image/jpeg\r\n\r\n' + buffer.tobytes() + b'\r\n')
         else:
-            # If detection is not running, yield a placeholder or blank frame
             blank_frame = np.zeros((480, 640, 3), dtype=np.uint8)
             ret, buffer = cv2.imencode('.jpg', blank_frame)
             if ret:
@@ -67,3 +67,29 @@ def get_screenshots():
 def get_screenshot(id):
     screenshot = Screenshot.query.get_or_404(id)
     return send_file(screenshot.filepath, mimetype='image/jpeg')
+
+def get_status():
+    global detection
+    if detection is None:
+        return {"status": "idle", "error_message": None}
+    return detection.get_status()
+
+@camera_blueprint.route('/detection_status')
+def detection_status():
+    return jsonify(get_status())
+
+@camera_blueprint.route('/stats')
+def get_stats():
+    total_detections = Screenshot.query.count()
+    
+    today = datetime.now().date()
+    detections_today = Screenshot.query.filter(func.date(Screenshot.uploaded) == today).count()
+    
+    status = get_status()
+    
+    return jsonify({
+        "total_detections": total_detections,
+        "detections_today": detections_today,
+        "status": status["status"],
+        "error_message": status["error_message"]
+    })

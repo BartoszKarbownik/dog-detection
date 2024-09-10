@@ -115,7 +115,6 @@ const navigation = [
   { name: 'Dashboard', to: '/home', current: true },
   { name: 'Cameras', to: '/cameras', current: false },
   { name: 'Detections', to: '/detections', current: false },
-  { name: 'Calendar', to: '/calendar', current: false },
 ]
 
 const route = useRoute()

@@ -11,7 +11,6 @@
           :src="streamUrl" 
           alt="Camera Feed"
           class="absolute inset-0 w-full h-full object-cover"
-          @click="toggleFullscreen"
         />
         <div 
           v-if="cameraStore.status === 'running'"
@@ -19,13 +18,18 @@
         >
           Detection Active
         </div>
+        <div 
+          class="absolute top-4 right-4 bg-blue-500 text-white px-3 py-1 rounded-full text-sm font-semibold"
+        >
+          FPS: {{ fps }}
+        </div>
       </div>
       
-      <div class="flex space-x-4 mb-6">
+      <div class="flex justify-center">
         <button 
           @click="toggleDetection"
           :class="[
-            'px-4 py-2 rounded-md font-semibold focus:outline-none focus:ring-2 focus:ring-offset-2',
+            'px-6 py-3 rounded-md font-semibold text-lg focus:outline-none focus:ring-2 focus:ring-offset-2',
             cameraStore.status === 'running'
               ? 'bg-red-500 hover:bg-red-600 focus:ring-red-500 text-white' 
               : 'bg-green-500 hover:bg-green-600 focus:ring-green-500 text-white'
@@ -33,33 +37,7 @@
         >
           {{ cameraStore.status === 'running' ? 'Stop Detection' : 'Start Detection' }}
         </button>
-        <button 
-          @click="captureScreenshot"
-          class="px-4 py-2 bg-purple-500 text-white rounded-md font-semibold hover:bg-purple-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
-        >
-          Capture Screenshot
-        </button>
       </div>
-      
-      <div class="bg-gray-100 p-4 rounded-md">
-        <h2 class="text-xl font-semibold mb-2 text-gray-800">Stream Information</h2>
-        <p><strong>Status:</strong> {{ cameraStore.status }}</p>
-        <p v-if="cameraStore.error"><strong>Error:</strong> {{ cameraStore.error }}</p>
-        <p><strong>FPS:</strong> {{ fps }}</p>
-      </div>
-    </div>
-    
-    <!-- Modal for fullscreen view -->
-    <div v-if="isFullscreen" class="fixed inset-0 bg-black z-50 flex items-center justify-center">
-      <img :src="streamUrl" alt="Fullscreen Camera Feed" class="max-w-full max-h-full object-contain" />
-      <button 
-        @click="isFullscreen = false"
-        class="absolute top-4 right-4 text-white bg-gray-800 rounded-full p-2 hover:bg-gray-700 focus:outline-none"
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-        </svg>
-      </button>
     </div>
   </div>
 </template>
@@ -70,7 +48,6 @@ import { useCameraStore } from '../stores/cameraStore';
 import Navbar from '../components/Navbar.vue';
 
 const cameraStore = useCameraStore();
-const isFullscreen = ref(false);
 const fps = ref(0);
 
 const streamUrl = computed(() => {
@@ -85,15 +62,6 @@ const toggleDetection = async () => {
   } else {
     await cameraStore.startDetection();
   }
-};
-
-const captureScreenshot = async () => {
-  // Implement screenshot capture logic here
-  console.log('Screenshot captured');
-};
-
-const toggleFullscreen = () => {
-  isFullscreen.value = !isFullscreen.value;
 };
 
 const updateFps = async () => {

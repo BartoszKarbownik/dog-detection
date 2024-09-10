@@ -13,6 +13,7 @@ class ObjectDetection:
         self.capture_index = capture_index
         self.app = app  
         self.model = YOLO("yolov8n.pt")
+        self.classes = [16]
         self.annotator = None
         self.last_saved_time = datetime.now().timestamp()
         self.save_interval = 3 
@@ -73,7 +74,7 @@ class ObjectDetection:
                 if not ret:
                     raise IOError("Failed to grab frame")
 
-                results = self.model(frame, verbose=False)
+                results = self.model(frame, verbose=False, classes=self.classes)
                 annotated_frame, _ = self.plot_bboxes(results, frame)
 
                 with self.lock:

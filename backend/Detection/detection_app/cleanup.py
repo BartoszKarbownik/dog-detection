@@ -30,5 +30,5 @@ def delete_expired_screenshots():
 
 def start_cleanup_scheduler():
     scheduler = BackgroundScheduler()
-    scheduler.add_job(func=delete_expired_screenshots, trigger="interval", minutes=1)
+    scheduler.add_job(func=delete_expired_screenshots, trigger="interval", minutes=30)
     scheduler.start()

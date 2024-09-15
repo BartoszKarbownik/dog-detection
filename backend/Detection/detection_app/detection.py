@@ -23,7 +23,7 @@ class ObjectDetection:
         self.is_running = False
         self.latest_frame = None
         self.lock = threading.Lock()
-        self.screenshot_path = 'C:\Users\Bartek\Documents\GitHub\dog-detection\backend\Detection\screenshots'
+        self.screenshot_path = 'C:/Users/Bartek/Documents/GitHub/dog-detection/backend/Detection/screenshots'
         self.error_message = None
         self.fps = 0
         self.frame_count = 0

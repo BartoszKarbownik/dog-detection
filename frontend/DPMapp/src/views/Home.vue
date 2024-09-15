@@ -29,7 +29,6 @@
       Error: {{ cameraStore.error }}
     </p>
 
-    <!-- Cleaned-up Notifications Section -->
     <div class="max-w-2xl mx-auto mt-8 p-4 bg-white rounded-lg shadow">
       <h2 class="text-2xl font-bold mb-4 text-gray-800">Recent Notifications</h2>
       <ul class="space-y-2">
@@ -53,7 +52,6 @@ import Dashboard from '../components/Dashboard.vue';
 
 const cameraStore = useCameraStore();
 
-// Status computation for UI
 const statusText = computed(() => {
   switch (cameraStore.status) {
     case 'idle': return 'Idle';
@@ -83,7 +81,6 @@ const stopDetection = () => {
   cameraStore.stopDetection();
 };
 
-// Setup notification system
 const setupNotifications = () => {
   const eventSource = new EventSource('http://localhost:5000/camera/notifications');
   eventSource.onmessage = (event) => {
@@ -94,7 +91,6 @@ const setupNotifications = () => {
   return eventSource;
 };
 
-// Request permission to show notifications if necessary
 const requestNotificationPermission = () => {
   if (!("Notification" in window)) {
     console.log("This browser does not support desktop notification");
@@ -110,7 +106,6 @@ const requestNotificationPermission = () => {
   }
 };
 
-// Show browser notification
 const showNotification = (notification) => {
   if (Notification.permission === "granted") {
     new Notification(notification.message);
@@ -124,7 +119,6 @@ onMounted(() => {
   statusCheckInterval = cameraStore.startStatusChecks();
   notificationEventSource = setupNotifications();
 
-  // Request permission to show notifications when the app starts
   requestNotificationPermission();
 });
 

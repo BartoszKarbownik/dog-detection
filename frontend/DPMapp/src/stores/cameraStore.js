@@ -12,6 +12,7 @@ export const useCameraStore = defineStore('camera', {
       { id: 3, name: 'Detections today', value: '0' },
     ],
     startTime: null,
+    notifications: [],
   }),
   actions: {
     async startDetection() {
@@ -96,5 +97,15 @@ export const useCameraStore = defineStore('camera', {
       this.updateStats();
       return setInterval(this.updateStats, interval);
     },
+    addNotification(notification) {
+      this.notifications.unshift(notification)
+      if (this.notifications.length > 10) {
+        this.notifications.pop()
+      }
+    },
+    clearNotifications() {
+      this.notifications = []
+    }
+  }
   },
-});
+);

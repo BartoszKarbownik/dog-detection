@@ -4,9 +4,9 @@ from datetime import datetime, timedelta
 
 class User(db.Model):
     __tablename__ = 'users'
-    id = db.Column('User_ID', db.Integer, primary_key=True)
-    username = db.Column('User_Username', db.String(50), unique=True, nullable=False)
-    password = db.Column('User_Password', db.String(255), nullable=False)
+    id = db.Column('id', db.Integer, primary_key=True)
+    username = db.Column('username', db.String(50), unique=True, nullable=False)
+    password = db.Column('password', db.String(255), nullable=False)
 
     def set_password(self, password):
         self.password = generate_password_hash(password)

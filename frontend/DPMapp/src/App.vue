@@ -4,6 +4,8 @@
 
   const authStore = useAuthStore();
   authStore.initializeStore();
+
+
 </script>
 
 <template>
@@ -16,5 +18,4 @@
 .header{
   position: sticky;
 }
-
 </style>

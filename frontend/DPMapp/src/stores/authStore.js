@@ -32,7 +32,7 @@ export const useAuthStore = defineStore('auth', {
     },
     async login(credentials) {
       try {
-        console.table("dane logowania", credentials);
+        console.table("Login data", credentials);
         console.table("token", this.token);
         const response = await axios.post('auth/login', credentials);
         this.token = response.data.token;

@@ -23,11 +23,12 @@ class ObjectDetection:
         self.is_running = False
         self.latest_frame = None
         self.lock = threading.Lock()
-        self.screenshot_path = 'C:/Users/Bartek/Desktop/Detection/screenshots'
+        self.screenshot_path = 'C:\Users\Bartek\Documents\GitHub\dog-detection\backend\Detection\screenshots'
         self.error_message = None
         self.fps = 0
         self.frame_count = 0
         self.fps_start_time = None
+        self.notification_queue = Queue()
 
 
     def save_screenshot(self, filename, filepath):
@@ -48,15 +49,30 @@ class ObjectDetection:
         for box, cls in zip(boxes, clss):
             class_ids.append(cls)
             self.annotator.box_label(box, label=names[int(cls)], color=colors(int(cls), True))
-            if names[int(cls)] == 'dog' and (current_time - self.last_saved_time > self.save_interval):
+            if current_time - self.last_saved_time > self.save_interval:
                 timestamp = datetime.now().strftime("%d-%m-%Y_%H-%M-%S")
                 filename = f"dog_detected_{timestamp}.jpg"
                 file_path = f"{self.screenshot_path}/{filename}"
                 cv2.imwrite(file_path, im0)
                 self.last_saved_time = current_time
                 self.save_screenshot(filename, file_path)
+                
+                self.queue_notification(filename)
 
         return im0, class_ids
+
+    def queue_notification(self, filename):
+        notification = {
+            "message": f"Dog detected at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}",
+            "image": filename
+        }
+        self.notification_queue.put(notification)
+        logging.info(f"Notification queued for {filename}")
+
+    def get_notification(self):
+        if not self.notification_queue.empty():
+            return self.notification_queue.get()
+        return None
 
     def detection_loop(self):
         try:

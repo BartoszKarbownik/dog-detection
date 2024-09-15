@@ -1,4 +1,6 @@
-from flask import Response, Blueprint, request, jsonify, current_app, send_file
+import json
+import time
+from flask import Response, Blueprint, request, jsonify, current_app, send_file, stream_with_context
 import cv2
 import numpy as np
 from sqlalchemy import func
@@ -117,3 +119,16 @@ def get_fps():
     if detection and detection.is_running:
         return jsonify({"fps": detection.get_fps()})
     return jsonify({"fps": 0})
+
+@camera_blueprint.route('/notifications')
+def notifications():
+    def event_stream():
+        global detection
+        while True:
+            if detection and detection.is_running:
+                notification = detection.get_notification()
+                if notification:
+                    yield f"data: {json.dumps(notification)}\n\n"
+                time.sleep(1)
+
+    return Response(stream_with_context(event_stream()), content_type='text/event-stream')

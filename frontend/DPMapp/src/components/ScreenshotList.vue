@@ -22,7 +22,6 @@
       </ul>
       <p v-else class="text-gray-500">No screenshots available.</p>
 
-      <!-- Pagination -->
       <div class="mt-4">
         <nav class="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
           <button
@@ -88,7 +87,7 @@ onMounted(async () => {
   await cameraStore.refreshScreenshots();
   screenshots.value = cameraStore.screenshots;
   if (screenshots.value.length > 0) {
-    selectScreenshot(screenshots.value[0]); // Select the most recent screenshot
+    selectScreenshot(screenshots.value[0]); 
   }
 });
 
